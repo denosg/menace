@@ -15,7 +15,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       floatingActionButton: Consumer<VideoProvider>(
         builder: (context, videoData, _) => ElevatedButton(
-          onPressed: videoData.getVideosFromPH,
+          onPressed: () async {
+            await videoData.getVideosFromPH();
+          },
           child: const Text('test'),
         ),
       ),

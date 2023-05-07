@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
             textTheme:
                 const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.purple,
+              seedColor: Colors.orange,
               secondary: Colors.white,
             )),
         home: HomeScreen(),
