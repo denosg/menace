@@ -39,8 +39,6 @@ dependencies:
   html: ^0.15.2
   provider: ^6.0.5
   connectivity_plus: ^3.0.6
-  flutter_swiper: ^1.1.6
-  chewie: ^1.4.0
 
 dev_dependencies:
   flutter_test:
