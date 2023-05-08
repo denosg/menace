@@ -22,6 +22,7 @@ class VideoProvider with ChangeNotifier {
         final url = mp4Url.attributes['data-mp4'];
         if (url != null) {
           _videoList.add(url);
+          print(url);
         }
       }
     } catch (e) {

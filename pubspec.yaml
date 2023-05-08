@@ -39,6 +39,7 @@ dependencies:
   html: ^0.15.2
   provider: ^6.0.5
   connectivity_plus: ^3.0.6
+  video_player: ^2.6.1
 
 dev_dependencies:
   flutter_test:
