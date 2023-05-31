@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
@@ -12,7 +10,7 @@ class VideoProvider with ChangeNotifier {
     return [..._videoList];
   }
 
-  Future<void> getVideosFromPH() async {
+  Future<void> loadVideosFromPH() async {
     Uri url = Uri.parse('https://www.pornhub.com/');
     try {
       final response = await http.get(url);

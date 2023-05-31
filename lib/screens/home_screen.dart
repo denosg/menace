@@ -11,100 +11,85 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late VideoPlayerController controller;
+  late VideoPlayerController _videoController;
+  final _pageController = PageController();
   var _isInit = false;
+  bool _isVideoLoaded = false;
+  List<String> _videos = [];
+
+  Future<void> loadVideoPlayer() async {
+    print('loading...');
+    await Provider.of<VideoProvider>(context, listen: false).loadVideosFromPH();
+    final videoData = Provider.of<VideoProvider>(context, listen: false).videos;
+    setState(() {
+      _videos = videoData;
+    });
+  }
+
+  void loadListener() {
+    if (_videoController.value.isInitialized && !_isInit) {
+      _videoController.addListener(() {
+        if (_videoController.value.isInitialized && !_isVideoLoaded) {
+          setState(() {
+            _isVideoLoaded = true;
+          });
+        }
+      });
+      _isInit = true;
+    } else {
+      _isVideoLoaded = false; // reset the flag to false
+    }
+  }
 
   @override
   void initState() {
-    if (!_isInit) {
-      loadVideoPlayer();
-    }
-    _isInit = true;
     super.initState();
-  }
-
-  Future<void> loadVideoPlayer() async {
-    await Provider.of<VideoProvider>(context, listen: false)
-        .getVideosFromPH()
-        .then((value) {
-      final videoList =
-          Provider.of<VideoProvider>(context, listen: false).videos;
-      controller = VideoPlayerController.network(videoList[2]);
-      controller.addListener(() {
-        setState(() {});
-      });
-      controller.initialize().then((value) {
-        setState(() {});
-      });
-    });
+    loadVideoPlayer();
+    _videoController = VideoPlayerController.network('');
   }
 
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    _videoController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Play Video from Assets/URL"),
-        backgroundColor: Colors.redAccent,
-      ),
-      body: FutureBuilder(
-        builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.waiting
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Container(
-                    child: Column(children: [
-                    AspectRatio(
-                      aspectRatio: controller.value.aspectRatio,
-                      child: VideoPlayer(controller),
-                    ),
-                    Container(
-                      //duration of video
-                      child: Text("Total Duration: " +
-                          controller.value.duration.toString()),
-                    ),
-                    Container(
-                        child: VideoProgressIndicator(controller,
-                            allowScrubbing: true,
-                            colors: VideoProgressColors(
-                              backgroundColor: Colors.redAccent,
-                              playedColor: Colors.green,
-                              bufferedColor: Colors.purple,
-                            ))),
-                    Container(
-                      child: Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                if (controller.value.isPlaying) {
-                                  controller.pause();
-                                } else {
-                                  controller.play();
-                                }
-
-                                setState(() {});
-                              },
-                              icon: Icon(controller.value.isPlaying
-                                  ? Icons.pause
-                                  : Icons.play_arrow)),
-                          IconButton(
-                              onPressed: () {
-                                controller.seekTo(Duration(seconds: 0));
-
-                                setState(() {});
-                              },
-                              icon: Icon(Icons.stop))
-                        ],
-                      ),
-                    )
-                  ])),
-      ),
+      body: _videos.isEmpty
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : PageView.builder(
+              scrollDirection: Axis.vertical,
+              itemBuilder: (context, index) {
+                _isVideoLoaded = false;
+                _videoController =
+                    VideoPlayerController.network(_videos[index]);
+                _videoController.setLooping(true);
+                _videoController.play();
+                loadListener();
+                return _isVideoLoaded
+                    ? InkWell(
+                        onTap: () {
+                          if (_videoController.value.isPlaying) {
+                            _videoController.pause();
+                          } else {
+                            _videoController.play();
+                          }
+                        },
+                        child: AspectRatio(
+                          aspectRatio: _videoController.value.aspectRatio,
+                          child: VideoPlayer(_videoController),
+                        ),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      );
+              },
+              itemCount: _videos.length,
+            ),
     );
   }
 }

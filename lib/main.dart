@@ -21,12 +21,14 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(
-            textTheme:
-                const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.orange,
-              secondary: Colors.white,
-            )),
+          textTheme:
+              const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.orange,
+            secondary: Colors.white,
+          ),
+          scaffoldBackgroundColor: Colors.black,
+        ),
         home: HomeScreen(),
       ),
     );
