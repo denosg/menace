@@ -11,9 +11,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late VideoPlayerController _videoController;
-  var _isInit = false;
-  bool _isVideoLoaded = false;
+  List<bool> _videoLoadedList = [];
+  List<VideoPlayerController> _videoControllers = [];
   List<String> _videos = [];
 
   Future<void> loadVideoPlayer() async {
@@ -26,18 +25,16 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void loadListener() {
-    if (_videoController.value.isInitialized && !_isInit) {
-      _videoController.addListener(() {
-        if (_videoController.value.isInitialized && !_isVideoLoaded) {
+  void _initializeVideoControllers() {
+    for (String videoUrl in _videos) {
+      final controller = VideoPlayerController.network(videoUrl)
+        ..initialize().then((_) {
           setState(() {
-            _isVideoLoaded = true;
+            _videoLoadedList.add(true);
           });
-        }
-      });
-      _isInit = true;
-    } else {
-      _isVideoLoaded = false; // reset the flag to false
+        });
+      _videoControllers.add(controller);
+      _videoLoadedList.add(false);
     }
   }
 
@@ -46,54 +43,60 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // initialize list of videos for video player
     loadVideoPlayer();
-    _videoController = VideoPlayerController.network('');
+    // initialize the controller for each video
+    _initializeVideoControllers();
   }
 
   // clean memory
   @override
   void dispose() {
     super.dispose();
-    _videoController.dispose();
+    _disposeVideoControllers();
+  }
+
+  // clean memory
+  void _disposeVideoControllers() {
+    for (var controller in _videoControllers) {
+      controller.dispose();
+    }
+    _videoControllers.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _videos.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                _isVideoLoaded = false;
-                _videoController =
-                    VideoPlayerController.network(_videos[index]);
-                _videoController.setLooping(true);
-                _videoController.play();
-                loadListener();
-                return _isVideoLoaded
-                    ? InkWell(
-                        onTap: () {
-                          if (_videoController.value.isPlaying) {
-                            _videoController.pause();
-                          } else {
-                            _videoController.play();
-                          }
-                        },
-                        child: AspectRatio(
-                          aspectRatio: _videoController.value.aspectRatio,
-                          child: VideoPlayer(_videoController),
-                        ),
-                      )
-                    : const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.red,
-                        ),
-                      );
-              },
-              itemCount: _videos.length,
-            ),
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemBuilder: (context, index) {
+          // init the controller for the current video
+          final videoController = _videoControllers[index];
+          videoController.setLooping(true);
+          videoController.play();
+          return FutureBuilder(
+            future: videoController.initialize(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return InkWell(
+                  onTap: () {
+                    if (videoController.value.isPlaying) {
+                      videoController.pause();
+                    } else {
+                      videoController.play();
+                    }
+                  },
+                  child: AspectRatio(
+                    aspectRatio: videoController.value.aspectRatio,
+                    child: VideoPlayer(videoController),
+                  ),
+                );
+              } else {
+                return const CircularProgressIndicator();
+              }
+            },
+          );
+        },
+        itemCount: _videos.length,
+      ),
     );
   }
 }
