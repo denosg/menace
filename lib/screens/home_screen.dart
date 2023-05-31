@@ -19,8 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> loadVideoPlayer() async {
     print('loading...');
-    await Provider.of<VideoProvider>(context, listen: false).loadVideosFromPH();
-    final videoData = Provider.of<VideoProvider>(context, listen: false).videos;
+    final videoLoader = Provider.of<VideoProvider>(context, listen: false);
+    await videoLoader.loadVideosFromPH();
+    final videoData = videoLoader.videos;
     setState(() {
       _videos = videoData;
     });
