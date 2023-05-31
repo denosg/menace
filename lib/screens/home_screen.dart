@@ -87,7 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     : const Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          color: Colors.red,
+                        ),
                       );
               },
               itemCount: _videos.length,
