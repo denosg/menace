@@ -12,7 +12,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late VideoPlayerController _videoController;
-  final _pageController = PageController();
   var _isInit = false;
   bool _isVideoLoaded = false;
   List<String> _videos = [];
@@ -45,10 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // initialize list of videos for video player
     loadVideoPlayer();
     _videoController = VideoPlayerController.network('');
   }
 
+  // clean memory
   @override
   void dispose() {
     super.dispose();
