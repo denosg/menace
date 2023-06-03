@@ -71,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           // init the controller for the current video
           final videoController = _videoControllers[index];
-          print("ce drq: ${videoController.dataSource}");
           videoController.setLooping(true);
           videoController.play();
           return FutureBuilder(
@@ -87,12 +86,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                   child: AspectRatio(
-                    aspectRatio: videoController.value.aspectRatio,
+                    aspectRatio: 16.0 / 9.0,
                     child: VideoPlayer(videoController),
                   ),
                 );
               } else {
-                return const CircularProgressIndicator();
+                return const Center(child: CircularProgressIndicator());
               }
             },
           );
