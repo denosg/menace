@@ -25,7 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _initializeVideoControllers() {
+  Future<void> _initializeVideoControllers() async {
+    // initialize list of videos for video player
+    await loadVideoPlayer();
+    print(_videos);
     for (String videoUrl in _videos) {
       final controller = VideoPlayerController.network(videoUrl)
         ..initialize().then((_) {
@@ -41,8 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // initialize list of videos for video player
-    loadVideoPlayer();
     // initialize the controller for each video
     _initializeVideoControllers();
   }
@@ -70,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
         itemBuilder: (context, index) {
           // init the controller for the current video
           final videoController = _videoControllers[index];
+          print("ce drq: ${videoController.dataSource}");
           videoController.setLooping(true);
           videoController.play();
           return FutureBuilder(
