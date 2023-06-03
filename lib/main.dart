@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import './screens/home_screen.dart';
 import './providers/video_provider.dart';
 
+// God is watching me and he is not pleased
+
 void main() {
   runApp(const MainApp());
 }
